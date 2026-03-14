@@ -278,9 +278,19 @@ async def pinecone_query(
         include_metadata=True
     )
 
-    if isinstance(response, dict):
-        return response.get("matches", [])
-    return []
+    if not response or not getattr(response, "matches", None):
+        return []
+
+    matches = []
+
+    for m in response.matches:
+        matches.append({
+            "id": m.id,
+            "score": m.score,
+            "metadata": m.metadata
+        })
+
+    return matches
 
 
 async def metadata_search(filters: Dict[str, Any], top_k: int = 10) -> List[Dict[str, Any]]:
